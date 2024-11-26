@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h4 mb-0">Détails du Rendez-vous</h2>
+                    <div>
+                        {% if current_user.id == appointment.client_id %}
+                            <a href="{{ url_for('update_appointment', id=appointment.id) }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                        {% endif %}
+                        <a href="{{ url_for('appointments') }}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Retour
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Titre:</div>
+                        <div class="col-md-8">{{ appointment.title }}</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Client:</div>
+                        <div class="col-md-8">{{ appointment.client.username }}</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Prestataire:</div>
+                        <div class="col-md-8">{{ appointment.provider.username }}</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Date et heure:</div>
+                        <div class="col-md-8">{{ appointment.start_time.strftime('%d/%m/%Y %H:%M') }}</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Durée:</div>
+                        <div class="col-md-8">
+                            {% set duration = (appointment.end_time - appointment.start_time).total_seconds() / 60 %}
+                            {{ duration|int }} minutes
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Statut:</div>
+                        <div class="col-md-8">
+                            <span class="badge {% if appointment.status == 'confirmed' %}bg-success
+                                          {% elif appointment.status == 'pending' %}bg-warning
+                                          {% elif appointment.status == 'cancelled' %}bg-danger
+                                          {% else %}bg-secondary{% endif %}">
+                                {{ appointment.status }}
+                            </span>
+                        </div>
+                    </div>
+
+                    {% if appointment.description %}
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Description:</div>
+                        <div class="col-md-8">{{ appointment.description }}</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Créé le:</div>
+                        <div class="col-md-8">{{ appointment.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                    </div>
+
+                    {% if appointment.updated_at != appointment.created_at %}
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Dernière modification:</div>
+                        <div class="col-md-8">{{ appointment.updated_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

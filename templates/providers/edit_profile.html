@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Modifier mon profil</h1>
+    
+    <form method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Informations principales -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="mb-0">Informations principales</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Titre professionnel</label>
+                            <input type="text" class="form-control" id="title" name="title"
+                                   value="{{ profile.title if profile else '' }}" required>
+                            <div class="form-text">Ex: Médecin généraliste, Coach sportif, etc.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bio" class="form-label">Biographie</label>
+                            <textarea class="form-control" id="bio" name="bio" rows="5" required>{{ profile.bio if profile else '' }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="specialties" class="form-label">Spécialités</label>
+                            <input type="text" class="form-control" id="specialties" name="specialties"
+                                   value="{{ profile.specialties if profile else '' }}">
+                            <div class="form-text">Séparez les spécialités par des virgules</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="experience_years" class="form-label">Années d'expérience</label>
+                                <input type="number" class="form-control" id="experience_years" name="experience_years"
+                                       value="{{ profile.experience_years if profile else '' }}">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="languages" class="form-label">Langues parlées</label>
+                                <input type="text" class="form-control" id="languages" name="languages"
+                                       value="{{ profile.languages if profile else '' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="education" class="form-label">Formation</label>
+                            <textarea class="form-control" id="education" name="education" rows="3">{{ profile.education if profile else '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="mb-0">Informations de contact</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Ville</label>
+                            <input type="text" class="form-control" id="location" name="location"
+                                   value="{{ profile.location if profile else '' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="consultation_address" class="form-label">Adresse de consultation</label>
+                            <textarea class="form-control" id="consultation_address" name="consultation_address" rows="2">{{ profile.consultation_address if profile else '' }}</textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control" id="phone" name="phone"
+                                       value="{{ profile.phone if profile else '' }}">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="website" class="form-label">Site web</label>
+                                <input type="url" class="form-control" id="website" name="website"
+                                       value="{{ profile.website if profile else '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <!-- Photo de profil -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="mb-0">Photo de profil</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            {% if profile and profile.profile_picture %}
+                            <img src="{{ url_for('static', filename='uploads/' + profile.profile_picture) }}" 
+                                 class="img-fluid rounded-circle" alt="Photo de profil actuelle">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='img/default-profile.png') }}" 
+                                 class="img-fluid rounded-circle" alt="Photo de profil par défaut">
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="profile_picture" class="form-label">Changer la photo</label>
+                            <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Enregistrer les modifications</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

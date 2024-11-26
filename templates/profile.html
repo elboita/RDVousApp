@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Mon Profil{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">Mon Profil</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <div class="avatar-placeholder rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto" style="width: 150px; height: 150px;">
+                                    <i class="fas fa-user fa-4x text-muted"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h3 class="h5 mb-3">Informations personnelles</h3>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Nom d'utilisateur</label>
+                                <p class="form-control-static">{{ user.username }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Email</label>
+                                <p class="form-control-static">{{ user.email }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Type de compte</label>
+                                <p class="form-control-static">
+                                    {% if user.is_provider %}
+                                        <span class="badge bg-success">Prestataire</span>
+                                    {% else %}
+                                        <span class="badge bg-info">Client</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h3 class="h5 mb-3">Statistiques</h3>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-muted">Rendez-vous à venir</h6>
+                                            <p class="card-text h4">
+                                                {% if user.is_provider %}
+                                                    {{ user.appointments_as_provider.filter_by(status='confirmed').count() }}
+                                                {% else %}
+                                                    {{ user.appointments_as_client.filter_by(status='confirmed').count() }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-muted">Rendez-vous passés</h6>
+                                            <p class="card-text h4">
+                                                {% if user.is_provider %}
+                                                    {{ user.appointments_as_provider.filter_by(status='completed').count() }}
+                                                {% else %}
+                                                    {{ user.appointments_as_client.filter_by(status='completed').count() }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

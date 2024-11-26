@@ -1,0 +1,533 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block styles %}
+<style>
+    .calendar {
+        font-family: 'Inter', sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .calendar-nav {
+        display: flex;
+        gap: 10px;
+    }
+
+    .calendar-nav button {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .calendar-nav button:hover {
+        background: #f8f9fa;
+        border-color: #adb5bd;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    .calendar-day-header {
+        text-align: center;
+        font-weight: 600;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .calendar-day {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .calendar-date {
+        padding: 5px;
+        text-align: center;
+        font-weight: 500;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .calendar-slots {
+        display: flex;
+        flex-direction: column;
+        height: 80px;
+    }
+
+    .calendar-slot {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .calendar-slot:first-child {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    /* États des créneaux */
+    .slot-available {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .slot-available:hover {
+        background-color: #c3e6cb;
+    }
+
+    .slot-busy {
+        background-color: #f8d7da;
+        color: #721c24;
+        cursor: not-allowed;
+    }
+
+    .slot-past {
+        background-color: #e9ecef;
+        color: #6c757d;
+        cursor: not-allowed;
+        text-decoration: line-through;
+    }
+
+    .calendar-day.today {
+        border: 2px solid #007bff;
+    }
+
+    .calendar-day.other-month {
+        opacity: 0.5;
+    }
+
+    /* Légende */
+    .legend {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    .legend h5 {
+        margin-bottom: 10px;
+        color: #495057;
+    }
+
+    .legend-items {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+    }
+
+    /* Formulaire */
+    .appointment-form {
+        margin-top: 30px;
+        padding: 20px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-control {
+        border-radius: 4px;
+        border: 1px solid #ced4da;
+        padding: 8px 12px;
+    }
+
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+
+    .selected-slot {
+        background-color: #cce5ff !important;
+        color: #004085 !important;
+        border: 2px solid #004085 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>{{ title }}</h1>
+
+    <div class="calendar">
+        <div class="calendar-header">
+            <h4 id="current-month"></h4>
+            <div class="calendar-nav">
+                <button id="prev-month">&lt; Mois précédent</button>
+                <button id="next-month">Mois suivant &gt;</button>
+            </div>
+        </div>
+
+        <div class="calendar-grid">
+            <!-- En-têtes des jours -->
+            <div class="calendar-day-header">Lun</div>
+            <div class="calendar-day-header">Mar</div>
+            <div class="calendar-day-header">Mer</div>
+            <div class="calendar-day-header">Jeu</div>
+            <div class="calendar-day-header">Ven</div>
+            <div class="calendar-day-header">Sam</div>
+            <div class="calendar-day-header">Dim</div>
+
+            <!-- Les jours seront injectés ici par JavaScript -->
+        </div>
+
+        <div class="legend">
+            <h5>Légende</h5>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-color slot-available"></div>
+                    <span>Disponible</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color slot-busy"></div>
+                    <span>Occupé</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color slot-past"></div>
+                    <span>Passé</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #cce5ff;"></div>
+                    <span>Sélectionné</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" class="appointment-form needs-validation" novalidate>
+        {{ form.csrf_token }}
+        
+        <div class="form-group">
+            {{ form.provider_id.label(class="form-label") }}
+            {{ form.provider_id(class="form-select") }}
+            {% if form.provider_id.errors %}
+            <div class="invalid-feedback">
+                {% for error in form.provider_id.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.service_id.label(class="form-label") }}
+            {{ form.service_id(class="form-select") }}
+            <div id="service-info" class="text-muted mt-2"></div>
+            {% if form.service_id.errors %}
+            <div class="invalid-feedback">
+                {% for error in form.service_id.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control") }}
+            {% if form.title.errors %}
+            <div class="invalid-feedback">
+                {% for error in form.title.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-control", rows=3) }}
+            {% if form.description.errors %}
+            <div class="invalid-feedback">
+                {% for error in form.description.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.start_time.label(class="form-label") }}
+            {{ form.start_time(class="form-control", type="hidden") }}
+            <div id="selected-time-display" class="form-control-static">
+                Aucun créneau sélectionné
+            </div>
+            {% if form.start_time.errors %}
+            <div class="invalid-feedback">
+                {% for error in form.start_time.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.start_time.label(class="form-label") }}
+            {{ form.start_time(class="form-control") }}
+            <div id="end-time-info" class="text-muted mt-2"></div>
+            {% if form.start_time.errors %}
+            <div class="invalid-feedback">
+                {% for error in form.start_time.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Créer le rendez-vous</button>
+            <a href="{{ url_for('appointments') }}" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const providerSelect = document.querySelector('#provider_id');
+    const startTimeInput = document.querySelector('#start_time');
+    const selectedTimeDisplay = document.querySelector('#selected-time-display');
+    const calendarGrid = document.querySelector('.calendar-grid');
+    const currentMonthDisplay = document.querySelector('#current-month');
+    const prevMonthBtn = document.querySelector('#prev-month');
+    const nextMonthBtn = document.querySelector('#next-month');
+
+    let currentDate = new Date();
+    let selectedSlot = null;
+    let availability = {};
+
+    const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    
+    function updateCalendarHeader() {
+        currentMonthDisplay.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+    }
+
+    function createCalendarDay(date, isOtherMonth = false) {
+        const dateStr = date.toISOString().split('T')[0];
+        const isToday = date.toDateString() === new Date().toDateString();
+        
+        const dayDiv = document.createElement('div');
+        dayDiv.className = `calendar-day${isToday ? ' today' : ''}${isOtherMonth ? ' other-month' : ''}`;
+        
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'calendar-date';
+        dateDiv.textContent = date.getDate();
+        
+        const slotsDiv = document.createElement('div');
+        slotsDiv.className = 'calendar-slots';
+        
+        // Créer les créneaux du matin et de l'après-midi
+        const slots = ['morning', 'afternoon'];
+        slots.forEach(slot => {
+            const slotDiv = document.createElement('div');
+            slotDiv.className = 'calendar-slot';
+            
+            let status = 'available';
+            if (availability[dateStr]) {
+                status = availability[dateStr][slot];
+            }
+            
+            slotDiv.classList.add(`slot-${status}`);
+            slotDiv.textContent = slot === 'morning' ? 'Matin' : 'Après-midi';
+            
+            if (status === 'available') {
+                slotDiv.addEventListener('click', () => selectTimeSlot(date, slot));
+            }
+            
+            slotsDiv.appendChild(slotDiv);
+        });
+        
+        dayDiv.appendChild(dateDiv);
+        dayDiv.appendChild(slotsDiv);
+        return dayDiv;
+    }
+
+    function selectTimeSlot(date, slot) {
+        // Retirer la sélection précédente
+        const previousSelected = document.querySelector('.selected-slot');
+        if (previousSelected) {
+            previousSelected.classList.remove('selected-slot');
+        }
+        
+        // Définir l'heure en fonction du créneau
+        const startHour = slot === 'morning' ? 9 : 14;
+        date.setHours(startHour, 0, 0);
+        
+        // Mettre à jour le champ caché et l'affichage
+        startTimeInput.value = date.toISOString().slice(0, 16);
+        selectedTimeDisplay.textContent = `${date.toLocaleDateString('fr-FR')} - ${slot === 'morning' ? 'Matin' : 'Après-midi'}`;
+        
+        // Ajouter la classe selected au créneau
+        event.target.classList.add('selected-slot');
+    }
+
+    function renderCalendar() {
+        // Vider le calendrier existant (sauf les en-têtes)
+        const headers = Array.from(calendarGrid.children).slice(0, 7);
+        calendarGrid.innerHTML = '';
+        headers.forEach(header => calendarGrid.appendChild(header));
+
+        // Obtenir le premier jour du mois
+        const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        let startDate = new Date(firstDay);
+        
+        // Reculer jusqu'au lundi précédent
+        while (startDate.getDay() !== 1) {
+            startDate.setDate(startDate.getDate() - 1);
+        }
+
+        // Créer 6 semaines de calendrier
+        for (let i = 0; i < 42; i++) {
+            const currentMonth = startDate.getMonth() === currentDate.getMonth();
+            calendarGrid.appendChild(createCalendarDay(new Date(startDate), !currentMonth));
+            startDate.setDate(startDate.getDate() + 1);
+        }
+
+        updateCalendarHeader();
+    }
+
+    async function updateAvailability() {
+        const providerId = providerSelect.value;
+        if (providerId) {
+            try {
+                const response = await fetch(`/api/provider-availability-calendar/${providerId}`);
+                availability = await response.json();
+                renderCalendar();
+            } catch (error) {
+                console.error('Erreur:', error);
+                availability = {};
+                renderCalendar();
+            }
+        } else {
+            availability = {};
+            renderCalendar();
+        }
+    }
+
+    prevMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        updateAvailability();
+    });
+
+    nextMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        updateAvailability();
+    });
+
+    providerSelect.addEventListener('change', updateAvailability);
+
+    // Initialisation
+    if (providerSelect.value) {
+        updateAvailability();
+    } else {
+        renderCalendar();
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const providerSelect = document.querySelector('#provider_id');
+    const serviceSelect = document.querySelector('#service_id');
+    const startTimeInput = document.querySelector('#start_time');
+    const serviceInfo = document.querySelector('#service-info');
+    const endTimeInfo = document.querySelector('#end-time-info');
+
+    // Update services when provider changes
+    providerSelect.addEventListener('change', function() {
+        const providerId = this.value;
+        fetch(`/appointment/new?update_services=true&provider_id=${providerId}`)
+            .then(response => response.json())
+            .then(services => {
+                serviceSelect.innerHTML = '<option value="">Sélectionnez un service</option>';
+                services.forEach(([id, name]) => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = name;
+                    serviceSelect.appendChild(option);
+                });
+                updateServiceInfo();
+            });
+    });
+
+    // Update service info when service changes
+    serviceSelect.addEventListener('change', updateServiceInfo);
+    startTimeInput.addEventListener('change', updateEndTime);
+
+    function updateServiceInfo() {
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        if (selectedOption && selectedOption.text) {
+            const serviceText = selectedOption.text;
+            const match = serviceText.match(/\((\d+) min - ([\d.]+)€\)/);
+            if (match) {
+                const [_, duration, price] = match;
+                serviceInfo.textContent = `Durée: ${duration} minutes - Prix: ${price}€`;
+                updateEndTime();
+            } else {
+                serviceInfo.textContent = '';
+                endTimeInfo.textContent = '';
+            }
+        } else {
+            serviceInfo.textContent = '';
+            endTimeInfo.textContent = '';
+        }
+    }
+
+    function updateEndTime() {
+        const startTime = startTimeInput.value;
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        if (startTime && selectedOption) {
+            const match = selectedOption.text.match(/\((\d+) min/);
+            if (match) {
+                const duration = parseInt(match[1]);
+                const [hours, minutes] = startTime.split(':').map(Number);
+                const startDate = new Date(2000, 0, 1, hours, minutes);
+                const endDate = new Date(startDate.getTime() + duration * 60000);
+                const endTimeStr = endDate.toTimeString().slice(0, 5);
+                endTimeInfo.textContent = `Fin prévue: ${endTimeStr}`;
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

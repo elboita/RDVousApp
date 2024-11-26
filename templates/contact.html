@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Contact{% endblock %}
+
+{% block content %}
+<div class="contact-page py-5">
+    <div class="container">
+        <!-- En-tête -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">Contactez-nous</h1>
+            <p class="lead text-muted">Une question ? Un projet ? N'hésitez pas à nous contacter.</p>
+        </div>
+
+        <div class="row g-5 justify-content-between">
+            <!-- Informations de contact -->
+            <div class="col-lg-4">
+                <div class="contact-info p-4 rounded-3">
+                    <h3 class="h4 mb-4">Informations</h3>
+                    
+                    <!-- Adresse -->
+                    <div class="contact-item mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <h4 class="h5 mb-0">Notre adresse</h4>
+                        </div>
+                        <p class="text-muted mb-0">123 Rue de l'Innovation<br>75000 Paris, France</p>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="contact-item mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <h4 class="h5 mb-0">Email</h4>
+                        </div>
+                        <p class="text-muted mb-0">contact@rdvous.fr<br>support@rdvous.fr</p>
+                    </div>
+
+                    <!-- Téléphone -->
+                    <div class="contact-item mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <h4 class="h5 mb-0">Téléphone</h4>
+                        </div>
+                        <p class="text-muted mb-0">+33 (0)1 23 45 67 89<br>+33 (0)1 23 45 67 88</p>
+                    </div>
+
+                    <!-- Horaires -->
+                    <div class="contact-item">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h4 class="h5 mb-0">Horaires</h4>
+                        </div>
+                        <p class="text-muted mb-0">
+                            Lundi - Vendredi : 9h00 - 18h00<br>
+                            Samedi : 9h00 - 12h00<br>
+                            Dimanche : Fermé
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Réseaux sociaux -->
+                <div class="social-links mt-4 text-center">
+                    <a href="#" class="social-link mx-2"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link mx-2"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link mx-2"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-link mx-2"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+
+            <!-- Formulaire de contact -->
+            <div class="col-lg-7">
+                <div class="contact-form p-4 rounded-3">
+                    <h3 class="h4 mb-4">Envoyez-nous un message</h3>
+                    
+                    <form method="POST" action="{{ url_for('contact') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row g-3">
+                            <!-- Nom -->
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.name(class="form-control", placeholder="Votre nom") }}
+                                    {{ form.name.label }}
+                                </div>
+                                {% if form.name.errors %}
+                                    {% for error in form.name.errors %}
+                                        <small class="text-danger">{{ error }}</small>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.email(class="form-control", placeholder="Votre email") }}
+                                    {{ form.email.label }}
+                                </div>
+                                {% if form.email.errors %}
+                                    {% for error in form.email.errors %}
+                                        <small class="text-danger">{{ error }}</small>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Sujet -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    {{ form.subject(class="form-control", placeholder="Sujet") }}
+                                    {{ form.subject.label }}
+                                </div>
+                                {% if form.subject.errors %}
+                                    {% for error in form.subject.errors %}
+                                        <small class="text-danger">{{ error }}</small>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Message -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    {{ form.message(class="form-control", style="height: 150px", placeholder="Votre message") }}
+                                    {{ form.message.label }}
+                                </div>
+                                {% if form.message.errors %}
+                                    {% for error in form.message.errors %}
+                                        <small class="text-danger">{{ error }}</small>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Bouton d'envoi -->
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Envoyer le message
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

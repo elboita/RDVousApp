@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RDVous - Votre application de gestion de rendez-vous">
+    <meta name="theme-color" content="#1a1a1a">
+    <title>RDVous - {% block title %}{% endblock %}</title>
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
+                <i class="fas fa-calendar-check me-2"></i>
+                <span>RDVous</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="{{ url_for('list_providers') }}">
+                            <i class="fas fa-user-md me-2"></i>
+                            <span>Nos Prestataires</span>
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                <span>Tableau de bord</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" href="{{ url_for('appointments') }}">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                <span>Mes rendez-vous</span>
+                            </a>
+                        </li>
+                        {% if current_user.is_provider %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="providerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-cog me-2"></i>
+                                    <span>Gestion</span>
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="providerDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('new_availability') }}">
+                                            <i class="fas fa-clock me-2"></i>Disponibilités
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('new_break_time') }}">
+                                            <i class="fas fa-pause-circle me-2"></i>Pauses
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="clientDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-2"></i>
+                                <span>Mon compte</span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="clientDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('profile') }}">
+                                        <i class="fas fa-user-circle me-2"></i>Mon profil
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('appointments') }}">
+                                        <i class="fas fa-calendar-alt me-2"></i>Mes rendez-vous
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                <span>Déconnexion</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                <span>Connexion</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" href="{{ url_for('register') }}">
+                                <i class="fas fa-user-plus me-2"></i>
+                                <span>Inscription</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <div>{{ message }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-5">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Logo et Description -->
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <div class="footer-brand d-flex align-items-center mb-3">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        <span class="h4 mb-0">RDVous</span>
+                    </div>
+                    <p class="text-muted mb-4">Simplifiez la gestion de vos rendez-vous avec RDVous. Une solution moderne et intuitive pour les professionnels.</p>
+                    <div class="social-links">
+                        <a href="#" class="me-3"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <!-- Liens Rapides -->
+                <div class="col-lg-2 col-md-4 mb-4 mb-lg-0">
+                    <h5 class="footer-title mb-4">Liens Rapides</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2"><a href="{{ url_for('home') }}">Accueil</a></li>
+                        <li class="mb-2"><a href="#">À propos</a></li>
+                        <li class="mb-2"><a href="#">Services</a></li>
+                        <li class="mb-2"><a href="#">Tarifs</a></li>
+                        <li class="mb-2"><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div class="col-lg-2 col-md-4 mb-4 mb-lg-0">
+                    <h5 class="footer-title mb-4">Support</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2"><a href="#">FAQ</a></li>
+                        <li class="mb-2"><a href="#">Documentation</a></li>
+                        <li class="mb-2"><a href="#">Contact</a></li>
+                        <li class="mb-2"><a href="#">Mentions légales</a></li>
+                        <li class="mb-2"><a href="#">Confidentialité</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div class="col-lg-4 col-md-4">
+                    <h5 class="footer-title mb-4">Contact</h5>
+                    <ul class="list-unstyled footer-contact">
+                        <li class="mb-3">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            123 Rue de l'Innovation, 75000 Paris
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-phone me-2"></i>
+                            +33 (0)1 23 45 67 89
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-envelope me-2"></i>
+                            contact@rdvous.fr
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Séparateur -->
+            <hr class="my-4">
+
+            <!-- Copyright -->
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2024 RDVous. Tous droits réservés.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="payment-icons d-inline-flex">
+                        <div class="payment-icon stripe" title="Stripe">
+                            <i class="fab fa-stripe"></i>
+                        </div>
+                        <div class="payment-icon paypal" title="PayPal">
+                            <i class="fab fa-paypal"></i>
+                        </div>
+                        <div class="payment-icon visa" title="Visa">
+                            <i class="fab fa-cc-visa"></i>
+                        </div>
+                        <div class="payment-icon mastercard" title="Mastercard">
+                            <i class="fab fa-cc-mastercard"></i>
+                        </div>
+                        <div class="payment-icon amex" title="American Express">
+                            <i class="fab fa-cc-amex"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery (nécessaire pour certains plugins) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    {% block scripts %}{% endblock %}
+    
+    <script>
+        // Auto-hide flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    alert.style.display = 'none';
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

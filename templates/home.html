@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section text-center py-5" style="background-image: url('{{ url_for('static', filename='images/hero-banner.jpg') }}'); background-size: cover; background-position: center;">
+    <div class="hero-overlay"></div>
+    <div class="container position-relative">
+        <h1 class="display-4 fw-bold mb-4 text-white">Simplifiez la gestion de vos rendez-vous</h1>
+        <p class="lead mb-5 text-white">RDVous est une plateforme intuitive de prise de rendez-vous conçue pour les professionnels. Gérez votre agenda, vos clients et vos services en toute simplicité.</p>
+        <div class="cta-buttons">
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-3">Commencer gratuitement</a>
+                <a href="#features" class="btn btn-outline-light btn-lg">En savoir plus</a>
+            {% else %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Accéder à mon tableau de bord</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div id="features" class="features-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Tout ce dont vous avez besoin</h2>
+        <p class="text-center mb-5 lead">Une suite complète d'outils pour gérer vos rendez-vous professionnels</p>
+        
+        <div class="row g-4">
+            <!-- Feature Cards -->
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3>Agenda intelligent</h3>
+                    <p>Gérez votre emploi du temps avec un calendrier intuitif et synchronisé</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Gestion des clients</h3>
+                    <p>Centralisez vos contacts et leur historique en un seul endroit</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Disponibilité 24/7</h3>
+                    <p>Permettez à vos clients de réserver à tout moment</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Rappels automatiques</h3>
+                    <p>Réduisez les absences grâce aux notifications automatiques</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Sécurisé</h3>
+                    <p>Vos données sont protégées selon les normes les plus strictes</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3>Personnalisable</h3>
+                    <p>Adaptez la plateforme à votre image et vos besoins</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

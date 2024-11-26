@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Nos Prestataires</h1>
+    
+    <!-- Filtres -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="profession" class="form-label">Profession</label>
+                    <input type="text" class="form-control" id="profession" name="profession" 
+                           value="{{ request.args.get('profession', '') }}" 
+                           placeholder="Ex: Médecin, Consultant...">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Filtrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des prestataires -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for provider in providers %}
+        <div class="col">
+            <div class="card h-100">
+                {% if provider.provider_profile and provider.provider_profile.profile_picture %}
+                <img src="{{ url_for('static', filename='uploads/' + provider.provider_profile.profile_picture) }}" 
+                     class="card-img-top provider-img" alt="{{ provider.name }}">
+                {% else %}
+                <img src="{{ url_for('static', filename='img/default-profile.png') }}" 
+                     class="card-img-top provider-img" alt="Profile par défaut">
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ provider.name }}</h5>
+                    {% if provider.provider_profile %}
+                        <h6 class="card-subtitle mb-2 text-muted">{{ provider.provider_profile.profession }}</h6>
+                        <p class="card-text">
+                            {% if provider.provider_profile.description %}
+                                {{ provider.provider_profile.description[:150] }}...
+                            {% else %}
+                                Aucune description disponible
+                            {% endif %}
+                        </p>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                {% if provider.provider_profile.address %}
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ provider.provider_profile.address }}<br>
+                                {% endif %}
+                                {% if provider.provider_profile.phone %}
+                                    <i class="fas fa-phone me-1"></i>{{ provider.provider_profile.phone }}
+                                {% endif %}
+                            </small>
+                        </p>
+                    {% else %}
+                        <p class="card-text">Profil non configuré</p>
+                    {% endif %}
+                </div>
+                
+                <div class="card-footer bg-white border-top-0">
+                    <a href="{{ url_for('provider_profile', provider_id=provider.id) }}" 
+                       class="btn btn-primary w-100">Voir le profil</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

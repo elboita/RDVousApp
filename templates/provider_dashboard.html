@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Colonne de gauche : Disponibilités -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Mes Disponibilités</h2>
+                    <a href="{{ url_for('new_availability') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Ajouter
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if current_user.availabilities.count() > 0 %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Jour</th>
+                                        <th>Début</th>
+                                        <th>Fin</th>
+                                        <th>Durée créneaux</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for availability in current_user.availabilities %}
+                                    <tr>
+                                        <td>
+                                            {% set days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'] %}
+                                            {{ days[availability.day_of_week] }}
+                                        </td>
+                                        <td>{{ availability.start_time.strftime('%H:%M') }}</td>
+                                        <td>{{ availability.end_time.strftime('%H:%M') }}</td>
+                                        <td>{{ availability.slot_duration }} min</td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm delete-availability" data-id="{{ availability.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucune disponibilité définie.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne de droite : Périodes de pause -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Périodes de Pause</h2>
+                    <a href="{{ url_for('new_break_time') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Ajouter
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if current_user.break_times.count() > 0 %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Début</th>
+                                        <th>Fin</th>
+                                        <th>Raison</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for break_time in current_user.break_times %}
+                                    <tr>
+                                        <td>{{ break_time.start_datetime.strftime('%d/%m/%Y %H:%M') }}</td>
+                                        <td>{{ break_time.end_datetime.strftime('%d/%m/%Y %H:%M') }}</td>
+                                        <td>{{ break_time.reason }}</td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm delete-break" data-id="{{ break_time.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucune période de pause définie.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendrier des rendez-vous -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Calendrier des Rendez-vous</h2>
+                </div>
+                <div class="card-body">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialisation du calendrier
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek',
+        locale: 'fr',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: '/api/appointments',
+        slotMinTime: '08:00:00',
+        slotMaxTime: '20:00:00',
+        allDaySlot: false,
+        slotDuration: '00:30:00',
+        businessHours: true
+    });
+    calendar.render();
+
+    // Gestion de la suppression des disponibilités
+    document.querySelectorAll('.delete-availability').forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette disponibilité ?')) {
+                const id = this.dataset.id;
+                fetch(`/availability/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Une erreur est survenue');
+                    }
+                });
+            }
+        });
+    });
+
+    // Gestion de la suppression des pauses
+    document.querySelectorAll('.delete-break').forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette période de pause ?')) {
+                const id = this.dataset.id;
+                fetch(`/break-time/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Une erreur est survenue');
+                    }
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
